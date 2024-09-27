@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Events;
@@ -10,11 +11,16 @@ namespace Connection
 {
     public class ColorConnectionManager : MonoBehaviour
     {
+        public Action<ColorNode> StartConnectingEvent;
+        public Action<ColorNode> StopConnectingEvent;
+
+        public ColorNode[] Nodes => _nodes;
+        
         [SerializeField] private GameObject colorNodesContainer;
         [SerializeField] private ColorConnector colorConnector;
 
         private ClickHandler _clickHandler;
-        
+
         private readonly ColorConnectionHistoryHandler _historyHandler = new();
 
         private ColorNode[] _nodes;
@@ -38,12 +44,15 @@ namespace Connection
             }
 
             _clickHandler = ClickHandler.Instance;
-            _clickHandler.SetDragEventHandlers(OnDragStart, OnDragEnd);
+            
+            _clickHandler.DragStartEvent += OnDragStart;
+            _clickHandler.DragEndEvent += OnDragEnd;
         }
 
         private void OnDestroy()
         {
-            _clickHandler.ClearEvents();
+            _clickHandler.DragStartEvent -= OnDragStart;
+            _clickHandler.DragEndEvent -= OnDragEnd;
         }
 
         private void StartConnecting(ColorNode colorNode)
@@ -53,6 +62,8 @@ namespace Connection
             _currentColorConnector.gameObject.SetActive(true);
 
             _currentConnectionMainNode = colorNode;
+
+            StartConnectingEvent?.Invoke(colorNode);
         }
 
         private void FinishConnecting(ColorNode colorNode)
@@ -66,10 +77,13 @@ namespace Connection
                 _connectionsFromColorNode[_currentConnectionMainNode] = new HashSet<ColorNode>();
 
             _connectionsFromColorNode[_currentConnectionMainNode].Add(colorNode);
+
+            StopConnectingEvent?.Invoke(colorNode);
         }
 
         private void CancelConnecting()
         {
+            StopConnectingEvent?.Invoke(_currentConnectionMainNode);
             Destroy(_currentColorConnector.gameObject);
         }
 
