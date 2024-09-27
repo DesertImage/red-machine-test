@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b29dd0ab89434dc0ba18ee73257b7f40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxLength: 4
+  maxLength: 7
   lineTransform: {fileID: 4466887220724833561}
   lineSpriteRenderer: {fileID: 4466887220724833560}
 --- !u!1 &4466887220724833566
